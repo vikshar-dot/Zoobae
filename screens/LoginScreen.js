@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, ImageBackground, Dimensions, Animated } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, ImageBackground, Dimensions, Animated, StatusBar } from 'react-native';
 import axios from 'axios';
 
 const bgImages = [
@@ -27,7 +27,6 @@ const LoginScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  // Pick a random background image each time the screen loads
   const bgImage = useMemo(() => {
     const idx = Math.floor(Math.random() * bgImages.length);
     return bgImages[idx];
@@ -73,11 +72,9 @@ const LoginScreen = ({ navigation }) => {
       const form = new FormData();
       form.append('username', email);
       form.append('password', password);
-      await axios.post('http://192.168.1.8:8000/login', form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await axios.post('http://192.168.1.8:8000/login', form, { headers: { 'Content-Type': 'multipart/form-data' } });
       setLoading(false);
-      navigation.replace('Home');
+      navigation.replace('MainTabs');
     } catch (err) {
       setLoading(false);
       Alert.alert('Login failed', err?.response?.data?.detail || 'Unknown error');
@@ -86,10 +83,18 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <ImageBackground source={bgImage} style={styles.background} resizeMode="cover">
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent={true}
+      />
       <View style={styles.bottomContainer}>
         <View style={styles.branding}>
-          <Text style={styles.appName}>Zoobae</Text>
-          <Animated.Text style={[styles.tagline, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}> 
+          <View style={styles.appNameContainer}>
+            <Text style={styles.appNameZoo}>Zoo</Text>
+            <Text style={styles.appNameBae}>bae</Text>
+          </View>
+          <Animated.Text style={[styles.tagline, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
             {taglines[taglineIndex]}
           </Animated.Text>
         </View>
@@ -114,7 +119,7 @@ const LoginScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
             <Text style={styles.loginButtonText}>{loading ? 'Logging in...' : 'Login'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.link}>
+          <TouchableOpacity onPress={() => navigation.replace('Register')} style={styles.link}>
             <Text style={styles.linkText}>Don't have an account? Register</Text>
           </TouchableOpacity>
         </View>
@@ -127,7 +132,7 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     width: width,
-    height: height,
+    height: height + 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -137,17 +142,31 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     paddingBottom: 40,
+    paddingTop: 50,
   },
   branding: {
     alignItems: 'center',
     marginBottom: 32,
   },
-  appName: {
+  appNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  appNameZoo: {
     fontSize: 48,
     fontWeight: 'bold',
     color: '#fff',
     letterSpacing: 2,
-    marginBottom: 12,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 8,
+  },
+  appNameBae: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#FF69B4',
+    letterSpacing: 2,
     textShadowColor: '#000',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 8,
@@ -178,7 +197,7 @@ const styles = StyleSheet.create({
     maxWidth: '90%',
   },
   loginButton: {
-    backgroundColor: '#DC143C',
+    backgroundColor: '#FF69B4',
     borderRadius: 8,
     marginTop: 8,
     marginBottom: 8,

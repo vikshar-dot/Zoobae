@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, StatusBar } from 'react-native';
 import Video from 'react-native-video';
 
 const { width, height } = Dimensions.get('window');
@@ -9,6 +9,11 @@ const WelcomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent={true}
+      />
       <Video
         source={require('../assets/welcome-bg.mp4')}
         style={styles.backgroundVideo}
@@ -20,7 +25,10 @@ const WelcomeScreen = ({ navigation }) => {
       />
       <View style={styles.overlay}>
         <View style={styles.centerContent}>
-          <Text style={styles.appName}>Zoobae</Text>
+          <View style={styles.appNameContainer}>
+            <Text style={styles.appNameZoo}>Zoo</Text>
+            <Text style={styles.appNameBae}>bae</Text>
+          </View>
           <Text style={styles.tagline}>Your AI Matchmaker</Text>
         </View>
         <View style={styles.bottomButtons}>
@@ -66,7 +74,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     width: width,
-    height: height,
+    height: height + 50,
     zIndex: 0,
   },
   overlay: {
@@ -77,19 +85,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.3)',
     zIndex: 1,
-    paddingVertical: 40,
+    paddingTop: 50,
+    paddingBottom: 40,
   },
   centerContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  appName: {
+  appNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  appNameZoo: {
     fontSize: 48,
     fontWeight: 'bold',
     color: '#fff',
     letterSpacing: 2,
-    marginBottom: 12,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 8,
+  },
+  appNameBae: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#FF69B4',
+    letterSpacing: 2,
     textShadowColor: '#000',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 8,

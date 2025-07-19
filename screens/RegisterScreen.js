@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert, ImageBackground, Dimensions, Animated } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert, ImageBackground, Dimensions, Animated, StatusBar } from 'react-native';
 import axios from 'axios';
 
 const bgImages = [
@@ -81,9 +81,17 @@ const RegisterScreen = ({ navigation }) => {
 
   return (
     <ImageBackground source={bgImage} style={styles.background} resizeMode="cover">
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent={true}
+      />
       <View style={styles.bottomContainer}>
         <View style={styles.branding}>
-          <Text style={styles.appName}>Zoobae</Text>
+          <View style={styles.appNameContainer}>
+            <Text style={styles.appNameZoo}>Zoo</Text>
+            <Text style={styles.appNameBae}>bae</Text>
+          </View>
           <Animated.Text style={[styles.tagline, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
             {taglines[taglineIndex]}
           </Animated.Text>
@@ -109,7 +117,7 @@ const RegisterScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.registerButton} onPress={handleRegister} disabled={loading}>
             <Text style={styles.registerButtonText}>{loading ? 'Registering...' : 'Register'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.link}>
+          <TouchableOpacity onPress={() => navigation.replace('Login')} style={styles.link}>
             <Text style={styles.linkText}>Already have an account? Sign in</Text>
           </TouchableOpacity>
         </View>
@@ -122,7 +130,7 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     width: width,
-    height: height,
+    height: height + 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -132,17 +140,31 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     paddingBottom: 40,
+    paddingTop: 50,
   },
   branding: {
     alignItems: 'center',
     marginBottom: 32,
   },
-  appName: {
+  appNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  appNameZoo: {
     fontSize: 48,
     fontWeight: 'bold',
     color: '#fff',
     letterSpacing: 2,
-    marginBottom: 12,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 8,
+  },
+  appNameBae: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#FF69B4',
+    letterSpacing: 2,
     textShadowColor: '#000',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 8,
@@ -173,7 +195,7 @@ const styles = StyleSheet.create({
     maxWidth: '90%',
   },
   registerButton: {
-    backgroundColor: '#DC143C',
+    backgroundColor: '#FF69B4',
     borderRadius: 8,
     marginTop: 8,
     marginBottom: 8,
