@@ -21,6 +21,12 @@ class DatabaseService:
         # Create indexes for better performance
         self._create_indexes()
     
+    def _convert_objectid_to_str(self, doc: Dict) -> Dict:
+        """Convert ObjectId to string in MongoDB document"""
+        if doc and "_id" in doc:
+            doc["_id"] = str(doc["_id"])
+        return doc
+    
     def _create_indexes(self):
         """Create database indexes for optimal performance"""
         # Users collection indexes
@@ -60,11 +66,13 @@ class DatabaseService:
     
     def get_user_by_email(self, email: str) -> Optional[Dict]:
         """Get user by email"""
-        return self.users.find_one({"email": email})
+        user = self.users.find_one({"email": email})
+        return self._convert_objectid_to_str(user) if user else None
     
     def get_user_by_id(self, user_id: str) -> Optional[Dict]:
         """Get user by ID"""
-        return self.users.find_one({"_id": user_id})
+        user = self.users.find_one({"_id": user_id})
+        return self._convert_objectid_to_str(user) if user else None
     
     def create_profile(self, user_id: str, profile_data: Dict) -> str:
         """Create a new profile for user"""
@@ -91,7 +99,8 @@ class DatabaseService:
     
     def get_profile(self, user_id: str) -> Optional[Dict]:
         """Get user profile"""
-        return self.profiles.find_one({"user_id": user_id})
+        profile = self.profiles.find_one({"user_id": user_id})
+        return self._convert_objectid_to_str(profile) if profile else None
     
     def add_photo(self, user_id: str, photo_data: Dict) -> str:
         """Add a new photo for user"""
