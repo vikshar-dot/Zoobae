@@ -1,97 +1,211 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Zoobae - AI-Powered Dating App
 
-# Getting Started
+A modern dating app with an intelligent AI chat system that helps users discover themselves and find meaningful connections through natural conversation.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 🚀 Features
 
-## Step 1: Start Metro
+### Core Dating App Features
+- **User Authentication** - Secure login/register system
+- **Profile Management** - Photo uploads with 4:5 aspect ratio cropping
+- **Photo Gallery** - Multiple photos with captions
+- **Modern UI** - Beautiful cherry blossom themed interface
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### AI Chat System (NEW!)
+- **RAG-Based LLM Chat** - Natural conversations like ChatGPT
+- **Personality Analysis** - Automatic insight extraction
+- **Conversation Memory** - Contextual responses based on chat history
+- **Follow-up Questions** - Smart questions to continue conversations
+- **Personality Insights** - MBTI, attachment styles, values, interests
+- **Free Tier Support** - Works with Google AI Studio (free) or simple fallback
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 🛠️ Tech Stack
 
-```sh
-# Using npm
-npm start
+### Frontend
+- **React Native** - Cross-platform mobile app
+- **React Navigation** - Tab and stack navigation
+- **Image Crop Picker** - Photo selection and cropping
 
-# OR using Yarn
-yarn start
+### Backend
+- **FastAPI** - Modern Python web framework
+- **MongoDB** - NoSQL database
+- **Google Gemini AI** - Free LLM for chat (with fallback)
+- **JWT Authentication** - Secure user sessions
+
+## 📦 Quick Start
+
+### 1. Clone and Setup
+```bash
+git clone <your-repo>
+cd App
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+### 2. Backend Setup
+```bash
+cd backend
+python setup.py  # Creates .env and checks dependencies
+pip install -r requirements.txt
 ```
 
-### iOS
+### 3. Get Free API Key
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign in and create API key (FREE!)
+3. Add to `backend/.env` file
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+### 4. Start Backend
+```bash
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8001
 ```
 
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
+### 5. Frontend Setup
+```bash
+cd AppFrontend
+npm install
+npx react-native start
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+### 6. Run on Device/Emulator
+```bash
+# Android
+npx react-native run-android
 
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+# iOS
+npx react-native run-ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 🎯 AI Chat System
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### How It Works
+1. **Natural Conversations** - AI responds contextually like ChatGPT
+2. **Personality Analysis** - Extracts insights from user messages
+3. **Smart Follow-ups** - Generates relevant questions
+4. **Memory** - Remembers conversation history
+5. **Insights Storage** - Builds comprehensive personality profiles
 
-## Step 3: Modify your app
+### System Prompt
+The AI is configured as "Zoobae" - a warm, supportive dating coach who:
+- Helps users explore their personality and values
+- Gathers insights about attachment styles and communication patterns
+- Understands relationship goals and preferences
+- Creates a safe space for honest sharing
 
-Now that you have successfully run the app, let's make changes!
+### Free Tier Benefits
+- **Google AI Studio**: 15 requests/minute, 1500/day (FREE!)
+- **Simple Fallback**: Works without API keys for testing
+- **No Credit Card Required**
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## 📱 App Screens
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### Profile Screen
+- Photo gallery with cherry blossom background
+- Profile information display
+- Edit profile functionality
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+### Chat AI Screen
+- Natural conversation interface
+- Message bubbles with typing indicators
+- Follow-up questions display
+- Personality insights panel
 
-## Congratulations! :tada:
+### Edit Profile Screen
+- Photo upload with 4:5 aspect ratio
+- Photo deletion and caption editing
+- Profile information editing
 
-You've successfully run and modified your React Native App. :partying_face:
+## 🔧 Configuration
 
-### Now what?
+### Environment Variables
+```env
+# Google AI Studio API (FREE!)
+GOOGLE_API_KEY=your_api_key_here
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+# MongoDB
+MONGO_URL=mongodb://localhost:27017/
 
-# Troubleshooting
+# Server
+HOST=0.0.0.0
+PORT=8001
+```
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### API Endpoints
+- `POST /chat/ai` - Chat with AI
+- `GET /chat/history` - Get chat history
+- `GET /chat/personality-summary` - Get personality analysis
+- `POST /profile/photos` - Upload photos
+- `GET /profile/photos` - Get user photos
 
-# Learn More
+## 🎨 UI Features
 
-To learn more about React Native, take a look at the following resources:
+### Design System
+- **Cherry Blossom Theme** - Beautiful pink/white color scheme
+- **Consistent Spacing** - Unified margins and padding
+- **Modern Cards** - Clean, rounded interface elements
+- **Responsive Layout** - Works on different screen sizes
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+### Photo Handling
+- **4:5 Aspect Ratio** - Instagram-style photo cropping
+- **Multiple Photos** - Gallery with captions
+- **Smooth Upload** - Progress indicators and error handling
+- **Background Consistency** - Cherry blossom backgrounds
+
+## 🧠 AI Capabilities
+
+### Personality Analysis
+- **MBTI Indicators** - Introvert/Extrovert detection
+- **Attachment Styles** - Anxious/Avoidant/Secure patterns
+- **Values Extraction** - Core values and priorities
+- **Interest Detection** - Hobbies and passions
+- **Communication Style** - Direct/Diplomatic patterns
+
+### Conversation Features
+- **Contextual Responses** - Based on conversation history
+- **Smart Questions** - Generated based on missing insights
+- **Emotional Intelligence** - Supportive and validating responses
+- **Natural Flow** - Conversational, not interrogative
+
+## 🚀 Deployment
+
+### Backend Deployment
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Set environment variables
+export GOOGLE_API_KEY=your_key
+export MONGO_URL=your_mongodb_url
+
+# Start server
+python -m uvicorn main:app --host 0.0.0.0 --port 8001
+```
+
+### Frontend Deployment
+```bash
+# Build for production
+cd AppFrontend
+npx react-native run-android --variant=release
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+- **Setup Issues**: Run `python setup.py` in backend directory
+- **API Limits**: Check Google AI Studio dashboard
+- **Dependencies**: Ensure all packages are installed
+- **Database**: MongoDB must be running
+
+## 🎉 What's Next?
+
+- **Matching Algorithm** - Use personality insights for better matches
+- **Video Chat** - Real-time video conversations
+- **Group Chats** - Community features
+- **Advanced Analytics** - Relationship insights and trends

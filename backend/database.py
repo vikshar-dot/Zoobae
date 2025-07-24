@@ -17,6 +17,8 @@ class DatabaseService:
         self.profiles = self.db["profiles"]
         self.photos = self.db["photos"]
         self.prompts = self.db["prompts"]
+        self.chat_messages = self.db["chat_messages"]
+        self.personality_insights = self.db["personality_insights"]
         
         # Create indexes for better performance
         self._create_indexes()
@@ -98,9 +100,27 @@ class DatabaseService:
         return result.modified_count > 0
     
     def get_profile(self, user_id: str) -> Optional[Dict]:
-        """Get user profile"""
+        """Get user profile with photos and prompts"""
         profile = self.profiles.find_one({"user_id": user_id})
-        return self._convert_objectid_to_str(profile) if profile else None
+        if not profile:
+            return None
+        
+        # Convert ObjectId to string
+        profile = self._convert_objectid_to_str(profile)
+        
+        # Get user photos
+        photos = self.get_user_photos(user_id)
+        photos = [self._convert_objectid_to_str(photo) for photo in photos]
+        
+        # Get user prompts
+        prompts = self.get_user_prompts(user_id)
+        prompts = [self._convert_objectid_to_str(prompt) for prompt in prompts]
+        
+        # Add photos and prompts to profile
+        profile["photos"] = photos
+        profile["prompts"] = prompts
+        
+        return profile
     
     def add_photo(self, user_id: str, photo_data: Dict) -> str:
         """Add a new photo for user"""
@@ -132,14 +152,42 @@ class DatabaseService:
     
     def delete_photo(self, photo_id: str) -> bool:
         """Delete a photo"""
-        result = self.photos.delete_one({"_id": photo_id})
-        return result.deleted_count > 0
+        import os
+        from pathlib import Path
+        
+        # Try to delete by _id first, then by id field
+        photo = self.photos.find_one({"_id": photo_id})
+        if not photo:
+            # If not found by _id, try by id field
+            photo = self.photos.find_one({"id": photo_id})
+        
+        if photo:
+            # Delete the physical file
+            try:
+                # Extract filename from URL or use photo_id
+                filename = f"{photo.get('id', photo_id)}.jpg"
+                file_path = Path("uploads") / filename
+                
+                if file_path.exists():
+                    os.remove(file_path)
+                    print(f"Deleted physical file: {file_path}")
+            except Exception as e:
+                print(f"Error deleting physical file: {e}")
+            
+            # Delete from database
+            result = self.photos.delete_one({"_id": photo["_id"]})
+            return result.deleted_count > 0
+        
+        return False
     
     def get_user_photos(self, user_id: str) -> List[Dict]:
         """Get all photos for a user, ordered by order field"""
-        return list(self.photos.find(
+        photos = list(self.photos.find(
             {"user_id": user_id}
         ).sort("order", ASCENDING))
+        
+        # Convert ObjectIds to strings
+        return [self._convert_objectid_to_str(photo) for photo in photos]
     
     def add_prompt(self, user_id: str, prompt_data: Dict) -> str:
         """Add a new prompt for user"""
@@ -164,9 +212,12 @@ class DatabaseService:
     
     def get_user_prompts(self, user_id: str) -> List[Dict]:
         """Get all prompts for a user, ordered by order field"""
-        return list(self.prompts.find(
+        prompts = list(self.prompts.find(
             {"user_id": user_id}
         ).sort("order", ASCENDING))
+        
+        # Convert ObjectIds to strings
+        return [self._convert_objectid_to_str(prompt) for prompt in prompts]
     
     def get_profiles_for_matching(self, limit: int = 50, skip: int = 0) -> List[Dict]:
         """Get profiles for matching algorithm (optimized query)"""
@@ -200,6 +251,84 @@ class DatabaseService:
     def close(self):
         """Close database connection"""
         self.client.close()
+
+    def update_photo_urls_to_localhost(self):
+        """Update existing photo URLs to use localhost instead of placeholder URLs"""
+        try:
+            # Find all photos with placeholder URLs
+            placeholder_photos = self.photos.find({
+                "url": {"$regex": "^https://storage\\.example\\.com/"}
+            })
+            
+            for photo in placeholder_photos:
+                # Extract the photo ID from the placeholder URL
+                photo_id = photo["id"]
+                # Create new localhost URL
+                new_url = f"http://localhost:8001/uploads/{photo_id}.jpg"
+                
+                # Update the photo URL
+                self.photos.update_one(
+                    {"_id": photo["_id"]},
+                    {"$set": {"url": new_url}}
+                )
+                print(f"Updated photo {photo_id} URL to {new_url}")
+                
+        except Exception as e:
+            print(f"Error updating photo URLs: {e}")
+
+    def save_chat_message(self, user_id: str, message: str, sender: str, insights: Optional[Dict] = None) -> str:
+        """Save a chat message to the database"""
+        message_id = str(uuid.uuid4())
+        message_doc = {
+            "_id": message_id,
+            "user_id": user_id,
+            "message": message,
+            "sender": sender,  # 'user' or 'ai'
+            "insights": insights or {},
+            "timestamp": datetime.utcnow()
+        }
+        
+        self.chat_messages.insert_one(message_doc)
+        return message_id
+
+    def get_user_chat_history(self, user_id: str, limit: int = 50) -> List[Dict]:
+        """Get user's chat history with AI"""
+        messages = list(self.chat_messages.find(
+            {"user_id": user_id}
+        ).sort("timestamp", ASCENDING).limit(limit))
+        
+        # Convert ObjectIds to strings
+        return [self._convert_objectid_to_str(message) for message in messages]
+
+    def save_personality_insights(self, user_id: str, insights: Dict) -> str:
+        """Save personality insights for a user"""
+        insight_id = str(uuid.uuid4())
+        insight_doc = {
+            "_id": insight_id,
+            "user_id": user_id,
+            "insights": insights,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        # Update existing insights or create new ones
+        existing = self.personality_insights.find_one({"user_id": user_id})
+        if existing:
+            self.personality_insights.update_one(
+                {"user_id": user_id},
+                {"$set": {"insights": insights, "updated_at": datetime.utcnow()}}
+            )
+            return existing["_id"]
+        else:
+            self.personality_insights.insert_one(insight_doc)
+            return insight_id
+
+    def get_personality_insights(self, user_id: str) -> Optional[Dict]:
+        """Get personality insights for a user"""
+        insights = self.personality_insights.find_one({"user_id": user_id})
+        if insights:
+            return self._convert_objectid_to_str(insights)
+        return None
 
 # Global database instance
 db_service = DatabaseService() 

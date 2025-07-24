@@ -135,3 +135,26 @@ DerivedData
 # Temporary files
 *.tmp
 *.temp
+
+# Build artifacts and cache files
+**/build/
+**/.cxx/
+**/*.keystream*
+**/*.tab.keystream*
+**/cacheable/
+**/caches-jvm/
+**/inputs/
+**/outputs/
+**/kotlin/
+**/jvm/
+**/lookups/
+**/subtypes/
+**/supertypes/
+**/proto.tab*
+**/class-attributes.tab*
+**/internal-name-to-source.tab*
+**/class-fq-name-to-source.tab*
+**/source-to-classes.tab*
+**/source-to-output.tab*
+**/file-to-id.tab*
+**/id-to-file.tab*

@@ -57,4 +57,26 @@ class UserOut(BaseModel):
 class LoginResponse(BaseModel):
     access_token: str
     token_type: str
-    user: UserOut 
+    user: UserOut
+
+class ChatMessage(BaseModel):
+    message: str
+    user_id: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+class PersonalityInsight(BaseModel):
+    mbti_type: Optional[str] = None
+    attachment_style: Optional[str] = None
+    personality_traits: List[str] = []
+    values: List[str] = []
+    interests: List[str] = []
+    relationship_goals: Optional[str] = None
+    communication_style: Optional[str] = None
+    boundaries: List[str] = []
+    immediate_needs: List[str] = []
+
+class AIResponse(BaseModel):
+    message: str
+    personality_insights: Optional[PersonalityInsight] = None
+    follow_up_questions: List[str] = []
+    conversation_context: Dict[str, Any] = {} 
