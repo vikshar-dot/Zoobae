@@ -136,6 +136,17 @@ DerivedData
 *.tmp
 *.temp
 
+# User uploaded files (photos, etc.)
+backend/uploads/
+uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+*.mov
+*.avi
+
 # Build artifacts and cache files
 **/build/
 **/.cxx/
