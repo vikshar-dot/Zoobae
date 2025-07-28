@@ -17,6 +17,7 @@ class DatabaseService:
         self.profiles = self.db["profiles"]
         self.photos = self.db["photos"]
         self.prompts = self.db["prompts"]
+        # Create missing collections for chat functionality
         self.chat_messages = self.db["chat_messages"]
         self.personality_insights = self.db["personality_insights"]
         
@@ -48,6 +49,13 @@ class DatabaseService:
         # Prompts collection indexes
         self.prompts.create_index([("user_id", ASCENDING)])
         self.prompts.create_index([("order", ASCENDING)])
+        
+        # Chat messages collection indexes
+        self.chat_messages.create_index([("user_id", ASCENDING)])
+        self.chat_messages.create_index([("timestamp", ASCENDING)])
+        
+        # Personality insights collection indexes
+        self.personality_insights.create_index([("user_id", ASCENDING)], unique=True)
     
     def create_user(self, email: str, hashed_password: str) -> str:
         """Create a new user and return user_id"""
@@ -296,8 +304,6 @@ class DatabaseService:
         messages = list(self.chat_messages.find(
             {"user_id": user_id}
         ).sort("timestamp", ASCENDING).limit(limit))
-        
-        # Convert ObjectIds to strings
         return [self._convert_objectid_to_str(message) for message in messages]
 
     def save_personality_insights(self, user_id: str, insights: Dict) -> str:
@@ -329,6 +335,71 @@ class DatabaseService:
         if insights:
             return self._convert_objectid_to_str(insights)
         return None
+
+    # Delete methods for account deletion
+    def delete_user_profile(self, user_id: str) -> bool:
+        """Delete user profile from profiles collection"""
+        result = self.profiles.delete_one({"user_id": user_id})
+        return result.deleted_count > 0
+
+    def delete_user_photos(self, user_id: str) -> int:
+        """Delete all user photos from photos collection"""
+        result = self.photos.delete_many({"user_id": user_id})
+        return result.deleted_count
+
+    def delete_user_prompts(self, user_id: str) -> int:
+        """Delete all user prompts from prompts collection"""
+        result = self.prompts.delete_many({"user_id": user_id})
+        return result.deleted_count
+
+    def delete_user(self, user_id: str) -> bool:
+        """Delete user from users collection"""
+        result = self.users.delete_one({"_id": user_id})
+        return result.deleted_count > 0
+
+    def delete_user_chat_messages(self, user_id: str) -> int:
+        """Delete all user chat messages"""
+        result = self.chat_messages.delete_many({"user_id": user_id})
+        return result.deleted_count
+
+    def delete_user_personality_insights(self, user_id: str) -> bool:
+        """Delete user personality insights"""
+        result = self.personality_insights.delete_one({"user_id": user_id})
+        return result.deleted_count > 0
+
+    def delete_all_user_data(self, user_id: str) -> Dict[str, int]:
+        """Delete all user data from all collections"""
+        results = {
+            "profile_deleted": 0,
+            "photos_deleted": 0,
+            "prompts_deleted": 0,
+            "user_deleted": 0,
+            "chat_messages_deleted": 0,
+            "personality_insights_deleted": 0
+        }
+        
+        # Delete profile
+        if self.delete_user_profile(user_id):
+            results["profile_deleted"] = 1
+        
+        # Delete photos
+        results["photos_deleted"] = self.delete_user_photos(user_id)
+        
+        # Delete prompts
+        results["prompts_deleted"] = self.delete_user_prompts(user_id)
+        
+        # Delete chat messages
+        results["chat_messages_deleted"] = self.delete_user_chat_messages(user_id)
+        
+        # Delete personality insights
+        if self.delete_user_personality_insights(user_id):
+            results["personality_insights_deleted"] = 1
+        
+        # Delete user (do this last)
+        if self.delete_user(user_id):
+            results["user_deleted"] = 1
+        
+        return results
 
 # Global database instance
 db_service = DatabaseService() 

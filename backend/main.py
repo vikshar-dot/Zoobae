@@ -91,17 +91,50 @@ def create_profile(profile_data: UserProfile, current_user: dict = Depends(get_c
 
 @app.put("/profile", response_model=UserProfile)
 def update_profile(update_data: ProfileUpdate, current_user: dict = Depends(get_current_user)):
+    print(f"=== Update Profile Request ===")
+    print(f"User ID: {current_user['_id']}")
+    print(f"Update data: {update_data.dict()}")
+    
     # Remove None values
     update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
     
     if not update_dict:
         raise HTTPException(status_code=400, detail="No valid fields to update")
     
-    success = db_service.update_profile(current_user["_id"], update_dict)
-    if not success:
-        raise HTTPException(status_code=404, detail="Profile not found")
+    # Handle prompts separately if they exist
+    prompts = update_dict.pop("prompts", None)
+    print(f"Prompts to save: {len(prompts) if prompts else 0}")
     
-    return db_service.get_profile(current_user["_id"])
+    # Update profile (excluding prompts)
+    if update_dict:
+        success = db_service.update_profile(current_user["_id"], update_dict)
+        if not success:
+            raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Handle prompts if provided
+    if prompts:
+        print(f"Processing {len(prompts)} prompts...")
+        # First, delete existing prompts for this user
+        deleted_count = db_service.delete_user_prompts(current_user["_id"])
+        print(f"Deleted {deleted_count} existing prompts")
+        
+        # Then add new prompts
+        for i, prompt in enumerate(prompts):
+            prompt_data = {
+                "user_id": current_user["_id"],
+                "question": prompt["question"],
+                "answer": prompt["answer"],
+                "order": prompt["order"]
+            }
+            prompt_id = db_service.add_prompt(current_user["_id"], prompt_data)
+            print(f"Added prompt {i+1}: {prompt_id}")
+    
+    # Get updated profile
+    updated_profile = db_service.get_profile(current_user["_id"])
+    print(f"Updated profile prompts count: {len(updated_profile.get('prompts', []) if updated_profile else [])}")
+    print("=== Update Profile Complete ===")
+    
+    return updated_profile
 
 @app.post("/profile/photos")
 def upload_photo(
@@ -302,6 +335,75 @@ def chat_with_ai_test(chat_message: TestChatMessage):
     except Exception as e:
         print(f"Error in AI chat test: {e}")
         raise HTTPException(status_code=500, detail=f"AI chat error: {str(e)}")
+
+# Account deletion endpoints
+@app.delete("/user/delete-all")
+def delete_all_user_data(current_user: dict = Depends(get_current_user)):
+    """
+    Delete all user data from all collections
+    """
+    try:
+        user_id = current_user["_id"]
+        results = db_service.delete_all_user_data(user_id)
+        
+        return {
+            "message": "All user data deleted successfully",
+            "deleted_items": results
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting user data: {str(e)}")
+
+@app.delete("/user/profile")
+def delete_user_profile(current_user: dict = Depends(get_current_user)):
+    """
+    Delete user profile from profiles collection
+    """
+    try:
+        user_id = current_user["_id"]
+        success = db_service.delete_user_profile(user_id)
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="Profile not found")
+            
+        return {"message": "User profile deleted successfully"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting profile: {str(e)}")
+
+@app.delete("/user/photos")
+def delete_user_photos(current_user: dict = Depends(get_current_user)):
+    """
+    Delete all user photos from photos collection
+    """
+    try:
+        user_id = current_user["_id"]
+        deleted_count = db_service.delete_user_photos(user_id)
+        
+        return {
+            "message": f"Deleted {deleted_count} photos successfully",
+            "deleted_count": deleted_count
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting photos: {str(e)}")
+
+@app.delete("/user/prompts")
+def delete_user_prompts(current_user: dict = Depends(get_current_user)):
+    """
+    Delete all user prompts from prompts collection
+    """
+    try:
+        user_id = current_user["_id"]
+        deleted_count = db_service.delete_user_prompts(user_id)
+        
+        return {
+            "message": f"Deleted {deleted_count} prompts successfully",
+            "deleted_count": deleted_count
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting prompts: {str(e)}")
 
 @app.on_event("shutdown")
 def shutdown_event():

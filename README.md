@@ -1,16 +1,17 @@
 # Zoobae - AI-Powered Dating App
 
-A modern dating app with an intelligent AI chat system that helps users discover themselves and find meaningful connections through natural conversation.
+A modern dating app with an intelligent AI chat system, comprehensive user registration flow, and personality-based matching through questionnaire insights.
 
 ## 🚀 Features
 
 ### Core Dating App Features
-- **User Authentication** - Secure login/register system
-- **Profile Management** - Photo uploads with 4:5 aspect ratio cropping
-- **Photo Gallery** - Multiple photos with captions
+- **User Authentication** - Google Sign-In and phone number OTP
+- **Profile Management** - Complete user profiles with photos
+- **Multi-Step Registration** - Guided onboarding with personality questionnaire
+- **Photo Gallery** - Multiple photos with captions and AI suggestions
 - **Modern UI** - Beautiful cherry blossom themed interface
 
-### AI Chat System (NEW!)
+### AI Chat System
 - **RAG-Based LLM Chat** - Natural conversations like ChatGPT
 - **Personality Analysis** - Automatic insight extraction
 - **Conversation Memory** - Contextual responses based on chat history
@@ -18,20 +19,39 @@ A modern dating app with an intelligent AI chat system that helps users discover
 - **Personality Insights** - MBTI, attachment styles, values, interests
 - **Free Tier Support** - Works with Google AI Studio (free) or simple fallback
 
+### Registration & Questionnaire System
+- **Multi-Screen Registration** - Step-by-step profile creation
+- **Personality Questions** - 10 questions about personality traits
+- **Relationship Questions** - 5 questions about relationship preferences
+- **Values Questions** - 5 questions about money, goals, and values
+- **Optional Final Question** - "What do you want?" descriptive text
+- **Progress Tracking** - Saves progress and prevents data loss
+- **Completion Validation** - Ensures full questionnaire completion
+
 ## 🛠️ Tech Stack
 
 ### Frontend
 - **React Native** - Cross-platform mobile app
 - **React Navigation** - Tab and stack navigation
+- **AsyncStorage** - Local data persistence
+- **Google Sign-In** - OAuth authentication
 - **Image Crop Picker** - Photo selection and cropping
 
 ### Backend
 - **FastAPI** - Modern Python web framework
-- **MongoDB** - NoSQL database
+- **MongoDB** - NoSQL database with collections: users, profiles, photos, prompts, chat_messages, personality_insights
 - **Google Gemini AI** - Free LLM for chat (with fallback)
 - **JWT Authentication** - Secure user sessions
+- **File Upload** - Photo storage with local file system
 
-## 📦 Quick Start
+## 📦 Complete Setup Guide
+
+### Prerequisites
+- **Node.js** (v16 or higher)
+- **Python** (v3.8 or higher)
+- **MongoDB** (running locally or cloud instance)
+- **Android Studio** (for Android development)
+- **Xcode** (for iOS development, macOS only)
 
 ### 1. Clone and Setup
 ```bash
@@ -42,96 +62,129 @@ cd App
 ### 2. Backend Setup
 ```bash
 cd backend
-python setup.py  # Creates .env and checks dependencies
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Create .env file
+cp .env.example .env  # If .env.example exists
+# Or create .env manually with:
+# MONGO_URL=mongodb://localhost:27017/
+# GOOGLE_API_KEY=your_google_ai_studio_key
 ```
 
-### 3. Get Free API Key
+### 3. MongoDB Setup
+```bash
+# Install MongoDB (if not already installed)
+# macOS: brew install mongodb-community
+# Ubuntu: sudo apt install mongodb
+# Windows: Download from mongodb.com
+
+# Start MongoDB
+mongod
+
+# Create database (optional - will be created automatically)
+mongo
+use dating_app
+exit
+```
+
+### 4. Get Free API Key (Optional)
 1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
 2. Sign in and create API key (FREE!)
-3. Add to `backend/.env` file
+3. Add to `backend/.env` file: `GOOGLE_API_KEY=your_api_key_here`
 
-### 4. Start Backend
+### 5. Start Backend Server
 ```bash
-python -m uvicorn main:app --reload --host 0.0.0.0 --port 8001
+cd backend
+python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-### 5. Frontend Setup
+### 6. Frontend Setup
 ```bash
 cd AppFrontend
+
+# Install dependencies
 npm install
+
+# Install iOS dependencies (macOS only)
+cd ios && pod install && cd ..
+
+# Start Metro bundler
 npx react-native start
 ```
 
-### 6. Run on Device/Emulator
+### 7. Run on Device/Emulator
 ```bash
 # Android
 npx react-native run-android
 
-# iOS
+# iOS (macOS only)
 npx react-native run-ios
 ```
 
-## 🎯 AI Chat System
+## 🎯 App Flow
 
-### How It Works
-1. **Natural Conversations** - AI responds contextually like ChatGPT
-2. **Personality Analysis** - Extracts insights from user messages
-3. **Smart Follow-ups** - Generates relevant questions
-4. **Memory** - Remembers conversation history
-5. **Insights Storage** - Builds comprehensive personality profiles
+### Registration Process
+1. **Welcome Screen** - App introduction and Google Sign-In
+2. **Phone Number Screen** - Phone verification or Google Sign-In
+3. **Create Profile** - Basic information (name, age, etc.)
+4. **Personality Questions** - 10 questions about personality
+5. **Relationship Questions** - 5 questions about relationships
+6. **Values Questions** - 5 questions about money and goals
+7. **What Do You Want** - Optional descriptive text
+8. **Main App** - Access to all features
 
-### System Prompt
-The AI is configured as "Zoobae" - a warm, supportive dating coach who:
-- Helps users explore their personality and values
-- Gathers insights about attachment styles and communication patterns
-- Understands relationship goals and preferences
-- Creates a safe space for honest sharing
-
-### Free Tier Benefits
-- **Google AI Studio**: 15 requests/minute, 1500/day (FREE!)
-- **Simple Fallback**: Works without API keys for testing
-- **No Credit Card Required**
-
-## 📱 App Screens
-
-### Profile Screen
-- Photo gallery with cherry blossom background
-- Profile information display
-- Edit profile functionality
-
-### Chat AI Screen
-- Natural conversation interface
-- Message bubbles with typing indicators
-- Follow-up questions display
-- Personality insights panel
-
-### Edit Profile Screen
-- Photo upload with 4:5 aspect ratio
-- Photo deletion and caption editing
-- Profile information editing
+### Login Process
+- **Existing Users** - Direct access to main app
+- **Incomplete Registration** - Redirected to continue questionnaire
+- **New Users** - Guided through registration flow
 
 ## 🔧 Configuration
 
-### Environment Variables
+### Environment Variables (backend/.env)
 ```env
-# Google AI Studio API (FREE!)
-GOOGLE_API_KEY=your_api_key_here
-
-# MongoDB
+# MongoDB Connection
 MONGO_URL=mongodb://localhost:27017/
 
-# Server
+# Google AI Studio API (Optional - FREE!)
+GOOGLE_API_KEY=your_api_key_here
+
+# Server Configuration
 HOST=0.0.0.0
 PORT=8001
 ```
 
-### API Endpoints
-- `POST /chat/ai` - Chat with AI
-- `GET /chat/history` - Get chat history
-- `GET /chat/personality-summary` - Get personality analysis
-- `POST /profile/photos` - Upload photos
-- `GET /profile/photos` - Get user photos
+### Database Collections
+- **users** - User accounts and authentication
+- **profiles** - Basic profile information
+- **photos** - User photos with metadata
+- **prompts** - Questionnaire answers (20-21 per user)
+- **chat_messages** - AI chat conversation history
+- **personality_insights** - AI-generated personality analysis
+
+## 📱 App Screens
+
+### Authentication Screens
+- **Welcome Screen** - App introduction and initial sign-in
+- **Phone Number Screen** - Phone verification and Google Sign-In
+
+### Registration Screens
+- **Create Profile** - Basic profile information
+- **Personality Questions** - 10 personality assessment questions
+- **Relationship Questions** - 5 relationship preference questions
+- **Values Questions** - 5 values and goals questions
+- **What Do You Want** - Optional descriptive text input
+
+### Main App Screens
+- **Profile Screen** - User profile with completion status
+- **Chat AI Screen** - AI conversation interface
+- **Settings Screen** - App settings and account management
+- **Photo Gallery** - Photo management and editing
 
 ## 🎨 UI Features
 
@@ -140,6 +193,7 @@ PORT=8001
 - **Consistent Spacing** - Unified margins and padding
 - **Modern Cards** - Clean, rounded interface elements
 - **Responsive Layout** - Works on different screen sizes
+- **Progress Indicators** - Visual feedback for multi-step processes
 
 ### Photo Handling
 - **4:5 Aspect Ratio** - Instagram-style photo cropping
@@ -161,6 +215,7 @@ PORT=8001
 - **Smart Questions** - Generated based on missing insights
 - **Emotional Intelligence** - Supportive and validating responses
 - **Natural Flow** - Conversational, not interrogative
+- **User Isolation** - Each user's chat data completely separate
 
 ## 🚀 Deployment
 
@@ -184,6 +239,39 @@ cd AppFrontend
 npx react-native run-android --variant=release
 ```
 
+## 🔍 Troubleshooting
+
+### Common Issues
+
+#### Backend Issues
+- **Port 8001 in use**: Change port in uvicorn command
+- **MongoDB connection failed**: Ensure MongoDB is running
+- **Import errors**: Check Python virtual environment is activated
+- **500 errors**: Check server logs for specific error messages
+
+#### Frontend Issues
+- **Metro bundler issues**: Clear cache with `npx react-native start --reset-cache`
+- **Build errors**: Clean and rebuild with `cd android && ./gradlew clean`
+- **Google Sign-In issues**: Check Google Services configuration
+- **Network errors**: Verify backend server is running on correct IP
+
+#### Database Issues
+- **Collections not found**: They will be created automatically on first use
+- **Data persistence issues**: Check MongoDB connection and permissions
+- **User data isolation**: Each user's data is properly separated by user_id
+
+### Debug Commands
+```bash
+# Check backend status
+curl http://localhost:8001/
+
+# Check MongoDB collections
+mongo dating_app --eval "db.getCollectionNames()"
+
+# Check user data
+mongo dating_app --eval "db.users.find().pretty()"
+```
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -198,14 +286,29 @@ This project is licensed under the MIT License.
 
 ## 🆘 Support
 
-- **Setup Issues**: Run `python setup.py` in backend directory
+- **Setup Issues**: Follow the complete setup guide above
 - **API Limits**: Check Google AI Studio dashboard
 - **Dependencies**: Ensure all packages are installed
-- **Database**: MongoDB must be running
+- **Database**: MongoDB must be running and accessible
+- **Network**: Ensure backend is accessible from frontend device
 
-## 🎉 What's Next?
+## 🎉 Current Status
 
-- **Matching Algorithm** - Use personality insights for better matches
+### ✅ Completed Features
+- **User Authentication** - Google Sign-In and phone verification
+- **Multi-Step Registration** - Complete questionnaire flow
+- **Profile Management** - Photo uploads and profile editing
+- **AI Chat System** - Natural conversations with personality insights
+- **Data Persistence** - User-specific data isolation
+- **Progress Tracking** - Registration progress saved and restored
+- **Completion Validation** - Ensures full questionnaire completion
+
+### 🚧 In Progress
+- **Matching Algorithm** - Using questionnaire insights for better matches
+- **Advanced Analytics** - Relationship insights and trends
+
+### 🔮 Future Features
 - **Video Chat** - Real-time video conversations
 - **Group Chats** - Community features
-- **Advanced Analytics** - Relationship insights and trends
+- **Push Notifications** - Real-time updates
+- **Advanced Matching** - AI-powered compatibility scoring
