@@ -93,18 +93,25 @@ use dating_app
 exit
 ```
 
-### 4. Get Free API Key (Optional)
+### 4. File Upload Directory
+```bash
+# The uploads directory is created automatically
+# User photos will be stored locally in backend/uploads/
+# This directory is ignored by git to protect user privacy
+```
+
+### 5. Get Free API Key (Optional)
 1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
 2. Sign in and create API key (FREE!)
 3. Add to `backend/.env` file: `GOOGLE_API_KEY=your_api_key_here`
 
-### 5. Start Backend Server
+### 6. Start Backend Server
 ```bash
 cd backend
 python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-### 6. Frontend Setup
+### 7. Frontend Setup
 ```bash
 cd AppFrontend
 
@@ -118,7 +125,7 @@ cd ios && pod install && cd ..
 npx react-native start
 ```
 
-### 7. Run on Device/Emulator
+### 8. Run on Device/Emulator
 ```bash
 # Android
 npx react-native run-android
